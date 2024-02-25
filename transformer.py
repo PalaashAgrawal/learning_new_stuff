@@ -21,32 +21,39 @@ eval_iters = 200
 #hyperparameters set 2: architecture details
 n_embd = 384 #which is the vocabulary size
 n_head = 6 #ie head_size = 384/6 = 64
+
+
 n_layer = 6
-# ------------
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------
+#Basic setup of a  tokenizer
 
-class charTokenizer():
-    def __init__(self, input_file_path):
-        with open(input_file_path, 'r', encoding='utf-8') as f:
-            self.text = f.read()
+# class charTokenizer():
+#     f'a very basic character level tokenizer'
+
+#     def __init__(self, input_file_path):
+#         with open(input_file_path, 'r', encoding='utf-8') as f:
+#             self.text = f.read()
     
-        chars =sorted(list(set(self.text)))
-        self.vocab_size = len(chars)
+#         chars =sorted(list(set(self.text)))
+#         self.vocab_size = len(chars)
     
-        self.stoi = {ch:i for i,ch in enumerate(chars)}
-        self.itos = {i:ch for i,ch in enumerate(chars)}
+#         self.stoi = {ch:i for i,ch in enumerate(chars)}
+#         self.itos = {i:ch for i,ch in enumerate(chars)}
     
-    def encode(self, s):
-        f'takes a string, returns list of integers'
-        return [self.stoi[c] for c in s] #takes a string, ouputs a list of integers
+#     def encode(self, s):
+#         f'takes a string, returns list of integers'
+#         return [self.stoi[c] for c in s] #takes a string, ouputs a list of integers
     
-    def decode(self, l):
-        f'takes a list of token numbers, converts to string'
-        return ''.join([self.itos[i] for i in l]) #
+#     def decode(self, l):
+#         f'takes a list of token numbers, converts to string'
+#         return ''.join([self.itos[i] for i in l]) #
     
 
+# tokenizer = charTokenizer('input.txt')
+# vocab_size = tokenizer.vocab_size
 
-tokenizer = charTokenizer('input.txt')
-vocab_size = tokenizer.vocab_size
+
+
 
 
 
@@ -62,6 +69,16 @@ print('vocab_size: ', vocab_size)
 
 
 #____________________________________________________________________________________________________________________________________________
+#IMPLEMENTING THE GPT ARCHITECTURE
+#Ingredients of the GPT architecture (decoder only):
+# 1. the self-attention head (class Head)
+# 2. the multi-attention head (multiple self attention heads in parallel). (Class MultiHeadAttention)
+# 3. The feedforward unit, which consists of two Linear layers with non-linearity in the middle. Implementation according to the original transformer paper (Class FeedForward)
+# 4. Combining all these into one transformer block (Class Block)
+
+
+# 5. When you put token/position encoder + multiple transformer blocks in series + a final layernorm + final linear projection layer (to bring embedding back to vocab encoding),
+#     you get the GPU architecture (Class GPTLanguageModel)
 
 
 
@@ -259,8 +276,6 @@ class GPTLanguageModel(nn.Module):
 
     
 
-
-
     def __repr__(self): 
         return f'{self.name} Model architecture with {sum(p.numel() for p in self.parameters())/1e6}M parameters.'
 
@@ -268,4 +283,7 @@ class GPTLanguageModel(nn.Module):
 
 model = GPTLanguageModel()
 m = model.to(device)
+print("torch.cuda.memory_allocated: %fGB"%(torch.cuda.memory_allocated(0)/1024/1024/1024))
+
 print(m.__repr__)
+
